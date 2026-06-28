@@ -44,7 +44,7 @@ The following workflow demonstrates the complete customer support automation pro
 
 Every customer interaction is automatically logged into Google Sheets for reporting and future reference.
 
-![Google Sheets](images/google-sheet.png)
+![Google Sheets](images/Google-sheet.png)
 
 ---
 
