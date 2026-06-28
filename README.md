@@ -36,7 +36,7 @@ This workflow automatically analyzes customer inquiries, detects intent, classif
 
 The following workflow demonstrates the complete customer support automation process.
 
-![Workflow](images/workflow.png)
+![Workflow](images/Workflow.png)
 
 ---
 
