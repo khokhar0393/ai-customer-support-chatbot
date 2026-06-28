@@ -1,0 +1,778 @@
+{
+  "name": "AI Customer Support Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "AI Customer Support Chatbot",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -672,
+        0
+      ],
+      "id": "f082c5a7-6551-4c46-b83b-004198b5c594",
+      "name": "Receive Customer Message",
+      "webhookId": "d8dbb74f-2f95-4261-baf1-fd3ef4cb54d4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2c2b0152-1274-460c-8213-e1dd7e2fc75b",
+              "name": "customer_name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "c39eda3b-00b5-423b-9360-28ead034535f",
+              "name": "email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "c7d4d05a-2449-4615-b56b-d31b5a4a626c",
+              "name": "phone",
+              "value": "={{ $json.body.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "3193d93b-1325-46d4-8bdf-9852862815bb",
+              "name": "company",
+              "value": "={{ $json.body.company }}",
+              "type": "string"
+            },
+            {
+              "id": "7a038a3f-f7c2-4065-b71e-c25a9aef93f5",
+              "name": "message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "2193f12d-75b2-4099-bef5-fba5feb2f051",
+              "name": "timestamp",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -464,
+        0
+      ],
+      "id": "ef46119f-e190-493e-b6b0-9827a2418a15",
+      "name": "Extract Customer Details"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an intelligent AI Customer Support Assistant.\n\nYour responsibilities are:\n\n* Understand the customer's request.\n* Identify the customer's intent.\n* Determine the priority level (low, medium, or high).\n* Decide whether the conversation requires a human support agent.\n* Generate a professional, friendly, and helpful response.\n* Create a short summary of the conversation.\n\nCustomer Information:\n\nName: {{ $json.customer_name }}\nEmail: {{ $json.email }}\nPhone: {{ $json.phone }}\nCompany: {{ $json.company }}\nMessage: {{ $json.message }}\n\nRules:\n\n* Always reply in a polite and professional tone.\n* If the customer asks about pricing, services, features, or general information, set human_required to false.\n* If the customer reports a serious issue, requests a refund, complains, uses abusive language, requests account access, or asks for something the AI cannot safely answer, set human_required to true.\n* Set priority:\n\n  * High: Urgent issues, complaints, refunds, outages, or critical support.\n  * Medium: Pricing, sales inquiries, technical questions.\n  * Low: General questions or greetings.\n* Detect the customer's intent.\n* Detect the customer's sentiment as positive, neutral, or negative.\n* Return only valid JSON that matches the required output schema.\n* Do not include markdown, explanations, or extra text outside the JSON response.\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "4fe04c3f-5ab5-4dbc-bc30-b451dcb3ede8",
+      "name": "AI Support Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -256,
+        192
+      ],
+      "id": "bafc54bf-7d9a-45a8-ae27-502b8aa1d01c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "4iA2T9wLTVAXcGRP",
+          "name": "OpenAI account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"intent\": \"pricing\",\n  \"reply\": \"Hello John! Thank you for contacting us. Our pricing starts from $99. Please let us know if you have any specific requirements.\",\n  \"priority\": \"medium\",\n  \"human_required\": false,\n  \"summary\": \"Customer asked about pricing.\",\n  \"sentiment\": \"neutral\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -192,
+        320
+      ],
+      "id": "7c823844-21cd-415b-830b-718f41f16de9",
+      "name": "AI Response Parser"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1DnTVFgmQWlLqpWG39wSyrsprKeJYqntWxg5VDrx1EbA",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support Chatbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DnTVFgmQWlLqpWG39wSyrsprKeJYqntWxg5VDrx1EbA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DnTVFgmQWlLqpWG39wSyrsprKeJYqntWxg5VDrx1EbA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.customer_name }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Company": "={{ $json.company }}",
+            "Intent": "={{ $json.output.intent }}",
+            "Priority": "={{ $json.output.priority }}",
+            "Human Required": "={{ $json.output.human_required }}",
+            "Summary": "={{ $json.output.summary }}",
+            "AI Reply": "={{ $json.output.reply }}",
+            "Timestamp": "={{ $json.timestamp }}",
+            "Sentiment": "={{ $json.output.sentiment }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Human Required",
+              "displayName": "Human Required",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI Reply",
+              "displayName": "AI Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        -96
+      ],
+      "id": "4fa2febc-02c6-4b1a-81e6-04395a3b5781",
+      "name": "Save Conversation",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "FB4hI1IFi02yq4fN",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2e4b8e57-5ab3-4c20-8914-9b77e21d6703",
+              "leftValue": "={{ $json.output.human_required }}\n",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        256,
+        16
+      ],
+      "id": "24a3162c-96ca-442f-8528-957d4ed6d972",
+      "name": "Human Handoff Check"
+    },
+    {
+      "parameters": {
+        "sendTo": "babarabbaskhokhar3393@gmail.com",
+        "subject": "High Priority Customer Support Request",
+        "message": "=Customer Details\n\nName: {{ $json.customer_name }}\nEmail: {{ $json.email }}\nPhone: {{ $json.phone }}\nCompany: {{ $json.company }}\n\nAI Analysis\n\nIntent: {{ $json.output.intent }}\nPriority: {{ $json.output.priority }}\nHuman Required: {{ $json.output.human_required }}\nSentiment: {{ $json.output.sentiment }}\n\nSummary\n\n{{ $json.output.summary }}\n\nCustomer Message\n\n{{ $json.message }}\n\nAI Reply\n\n{{ $json.output.reply }}\n\nTimestamp\n\n{{ $json.timestamp }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -96
+      ],
+      "id": "f69ce72f-a7d4-4db8-afaf-411f6821f850",
+      "name": "Notify Support Team",
+      "webhookId": "c0eae180-d9e5-411c-b49d-29d68ab9fd95",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zcrKdWfZ7OkoevGc",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        656,
+        144
+      ],
+      "id": "cb837972-45b9-405e-9d22-638ae47a1be5",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        848,
+        -96
+      ],
+      "id": "345398be-7579-46d3-9b47-5987b3a2b65e",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -192,
+        464
+      ],
+      "id": "d1e8321a-1e83-49b4-9d84-8711013ce7d7",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "4iA2T9wLTVAXcGRP",
+          "name": "OpenAI account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1DnTVFgmQWlLqpWG39wSyrsprKeJYqntWxg5VDrx1EbA",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support Chatbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DnTVFgmQWlLqpWG39wSyrsprKeJYqntWxg5VDrx1EbA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DnTVFgmQWlLqpWG39wSyrsprKeJYqntWxg5VDrx1EbA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.customer_name }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Company": "={{ $json.company }}",
+            "Intent": "={{ $json.output.intent }}",
+            "Priority": "={{ $json.output.priority }}",
+            "Human Required": "={{ $json.output.human_required }}",
+            "Summary": "={{ $json.output.summary }}",
+            "Sentiments": "={{ $json.output.sentiment }}",
+            "AI Reply": "={{ $json.output.reply }}",
+            "Timestamp": "={{ $json.timestamp }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Human Required",
+              "displayName": "Human Required",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentiments",
+              "displayName": "Sentiments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI Reply",
+              "displayName": "AI Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        144
+      ],
+      "id": "7bf6d03f-d5c7-4c2a-9b7f-05ee046f8e1e",
+      "name": "Save Conversation1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "FB4hI1IFi02yq4fN",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        80,
+        16
+      ],
+      "id": "0ddb179b-f5b4-4f00-be31-6383f6726bc5",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Customer Message": {
+      "main": [
+        [
+          {
+            "node": "Extract Customer Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Customer Details": {
+      "main": [
+        [
+          {
+            "node": "AI Support Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Support Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Response Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Support Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Support Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Save Conversation": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human Handoff Check": {
+      "main": [
+        [
+          {
+            "node": "Notify Support Team",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save Conversation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Support Team": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Response Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Conversation1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Human Handoff Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c9647adf-f945-44aa-bc26-a8a720a33b2d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d424743025bec5009babfaef2f79b3c75a37f9945ba27d8e733a678dbe205c12"
+  },
+  "nodeGroups": [],
+  "id": "3FxWYWKUm3T5s5M2",
+  "tags": [
+    {
+      "updatedAt": "2026-06-24T21:57:35.726Z",
+      "createdAt": "2026-06-24T21:57:35.726Z",
+      "id": "mzOC1dRgCuVOeSnl",
+      "name": "AI"
+    },
+    {
+      "name": "customer support",
+      "id": "hMbl26775C1irqyn",
+      "updatedAt": "2026-06-28T10:21:41.510Z",
+      "createdAt": "2026-06-28T10:21:41.510Z"
+    },
+    {
+      "updatedAt": "2026-06-24T21:58:05.597Z",
+      "createdAt": "2026-06-24T21:58:05.597Z",
+      "id": "930PL2yz5YZSLtvy",
+      "name": "OpenAI"
+    },
+    {
+      "name": "webhook",
+      "id": "8M8EIsmyrD0pGmQO",
+      "updatedAt": "2026-06-28T10:21:56.695Z",
+      "createdAt": "2026-06-28T10:21:56.695Z"
+    },
+    {
+      "updatedAt": "2026-06-24T21:58:32.650Z",
+      "createdAt": "2026-06-24T21:58:32.650Z",
+      "id": "OBFghoAywHZeFR3s",
+      "name": "Google Sheets"
+    },
+    {
+      "updatedAt": "2026-06-24T21:58:44.039Z",
+      "createdAt": "2026-06-24T21:58:44.039Z",
+      "id": "Uxosj9pKzxWg0cJK",
+      "name": "Gmail"
+    },
+    {
+      "updatedAt": "2026-06-24T21:58:51.329Z",
+      "createdAt": "2026-06-24T21:58:51.329Z",
+      "id": "Kd5loNx7VFLwBplW",
+      "name": "Automation"
+    },
+    {
+      "name": "support",
+      "id": "AOUpvRMAu0JGsULN",
+      "updatedAt": "2026-06-28T10:22:39.944Z",
+      "createdAt": "2026-06-28T10:22:39.944Z"
+    },
+    {
+      "name": "ai agent",
+      "id": "cNAw2iD1RlrqWeMh",
+      "updatedAt": "2026-06-28T10:22:47.388Z",
+      "createdAt": "2026-06-28T10:22:47.388Z"
+    }
+  ]
+}
